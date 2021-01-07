@@ -40,7 +40,46 @@ top_5_status <- sf_trees %>%
   rename(tree_count = n) %>% 
   relocate(tree_count) %>%   #move columns around in df, similar to select function but simpler for multiple columns
   slice_max(tree_count, n = 5) #like head function but interactive if more values are added in the future, finds top 5 in this case
+```
 
+Make a graph of those top 5 observations by legal status. 
+```{r}
+ggplot(data = top_5_status, aes(x = fct_reorder(legal_status, tree_count), y = tree_count))+
+  geom_col() +
+  labs(x = "Legal Status", y = "Tree Count") +
+  coord_flip() + 
+  theme_minimal()
+
+```
+
+### A few more data wrangling refresher examples
+
+Only want to keep observations (rows) for Blackwood Acacia trees. 
+```{r}
+blackwood_acacia <- sf_trees %>% 
+  filter(str_detect(species, "Blackwood Acacia")) %>% #look within a specified variable to only keep within species where blackwood acacia is detected 
+  select(legal_status, date, latitude, longitude)
+
+#preview the new df
+ggplot(data = blackwood_acacia, aes(x = longitude, y = latitude)) +
+  geom_point()
+
+```
+
+### tidyr::separate() and unite() functions
+
+Useful for combining and separating columns
+
+```{r}
+sf_trees_sep <- sf_trees %>% 
+  separate(species, into = c("spp_scientific", "spp_common"), sep = "::")
+
+```
+
+Example: tidyr::unite()
+```{r}
+sf_trees_unite <- sf_trees %>% 
+  unite("id_status", tree_id:legal_status, sep = "_cool!_") #combining variables with a seperator such as _cool!_ in this example
 
 ```
 
