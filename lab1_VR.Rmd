@@ -26,7 +26,7 @@ sf_trees <- read_csv(here("data", "sf_trees", "sf_trees.csv"))
 
 ### Basic wrangling reminders 
 
-Refresh some skills for data wrangling and summary statistics using functions in the 'dplyr' package.
+Refresh some skills for data wrangling and summary statistics using functions in the `dplyr` package.
 
 Find the top 5 highest observations of trees by legal_status, do some wrangling, make a graph.
 ```{r}
@@ -80,6 +80,53 @@ Example: tidyr::unite()
 ```{r}
 sf_trees_unite <- sf_trees %>% 
   unite("id_status", tree_id:legal_status, sep = "_cool!_") #combining variables with a seperator such as _cool!_ in this example
+
+```
+
+### Make some actual maps of blackwood acacia trees in SF.
+
+`st_as_sf()` to convert latitude & longitude to spatial coodinates. 
+
+```{r}
+
+blackwood_acacia_sp <- blackwood_acacia %>% 
+  drop_na(longitude, latitude) %>% 
+  st_as_sf(coords = c("longitude", "latitude"))  #creates geometry that sticks with the variables
+
+st_crs(blackwood_acacia_sp) = 4326
+  
+ggplot(data = blackwood_acacia_sp)+
+  geom_sf(color = "darkgreen")
+```
+
+Read in SF roads shapefile: 
+```{r}
+sf_map <- read_sf(here("data", "sf_map", "tl_2017_06075_roads.shp"))
+
+st_transform(sf_map, 4326)
+
+ggplot(data = sf_map)+
+  geom_sf()
+```
+
+Now, combine blackwood acacia tree observations and SF roads map:
+
+
+```{r}
+ggplot()+
+  geom_sf(data = sf_map, size = 0.1, color = "darkgrey")+
+  geom_sf(data = blackwood_acacia_sp, color = "red", size = 0.5) +
+  theme_void()
+
+```
+
+Create an interactive map. 
+```{r}
+tmap_mode("view") #default is "plot" so we change it to "view" interactive viewing
+
+tm_shape(blackwood_acacia_sp)+
+  tm_dots()
+
 
 ```
 
